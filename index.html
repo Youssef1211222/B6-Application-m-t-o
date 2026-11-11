@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Météo App</title>
+    <link rel="stylesheet" href="./dist/output.css">
+    <script src="js/script.js" defer></script>
+</head>
+
+<body class="min-h-screen bg-slate-100">
+
+    <header class="bg-blue-600 p-6 text-center">
+        <h1 class="text-3xl font-bold text-white">
+            Météo App
+        </h1>
+    </header>
+
+    <main class="mx-auto max-w-4xl p-6">
+
+        <section class="rounded-xl bg-white p-6 shadow-md">
+
+            <h2 class="mb-6 text-2xl font-semibold text-slate-800">
+                Rechercher une ville
+            </h2>
+
+            <form id="form-recherche" class="flex flex-col gap-4 sm:flex-row sm:items-end">
+
+                <div class="flex-1">
+                    <label for="ville" class="mb-2 block font-medium text-slate-700">
+                        Ville
+                    </label>
+
+                    <input
+                        type="text"
+                        id="ville"
+                        name="ville"
+                        placeholder="Ex : Nador"
+                        class="w-full rounded-lg border border-slate-300 p-3 outline-none focus:border-blue-500"
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
+                >
+                    Rechercher
+                </button>
+
+            </form>
+
+            <p id="message-erreur" class="mt-4 hidden text-red-600"></p>
+
+            <p id="chargement" class="mt-4 hidden text-blue-600">
+                Chargement...
+            </p>
+
+        </section>
+
+    </main>
+
+</body>
+</html>
