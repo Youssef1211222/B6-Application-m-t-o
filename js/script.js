@@ -1,9 +1,15 @@
 
 const form = document.getElementById("form-recherche");
+
 const ville = document.getElementById("ville");
+
 const errorMessage = document.getElementById("message-erreur");
+
 const chargement = document.getElementById("chargement");
+
 const resultatMeteoContainer = document.getElementById("resultat-meteo");
+
+const reessayer = document.getElementById("reessayer");
 
 const WEATHER_CODES = {
     0:  { label: "Ciel dégagé", icon: "☀️" },
@@ -39,6 +45,8 @@ const WEATHER_CODES = {
 form.addEventListener("submit", async function(event) {
     event.preventDefault();
 
+     reessayer.classList.add("hidden");
+
     const nomVille = ville.value.trim();
 
     if (nomVille === "") {
@@ -56,6 +64,9 @@ form.addEventListener("submit", async function(event) {
         const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(nomVille)}&count=1`;
 
         const resultat = await fetch(url);
+        if (resultat.status === 429) {
+        throw new Error("Quota atteint. Réessayez plus tard.");
+    }
 
         if (!resultat.ok) {
             throw new Error("Erreur lors de la recherche");
@@ -77,6 +88,9 @@ form.addEventListener("submit", async function(event) {
         const urlMeteo = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=5`;
 
         const resultatMeteo = await fetch(urlMeteo);
+         if (resultatMeteo.status === 429) {
+        throw new Error("Quota atteint. Réessayez plus tard.");
+    }
 
         if (!resultatMeteo.ok) {
             throw new Error("Erreur lors de la récupération de la météo");
@@ -238,7 +252,6 @@ form.addEventListener("submit", async function(event) {
             icon.className = "text-4xl";
             descriptionJour.className = "text-sm text-slate-300";
 
-            carteJour.append(icon, descriptionJour);
             carteJour.append(dateElement, maxElement, minElement, icon, descriptionJour);
             listePrevisions.append(carteJour);
             
@@ -246,10 +259,15 @@ form.addEventListener("submit", async function(event) {
 
     } catch (error) {
         console.error(error);
-        errorMessage.textContent = "Une erreur est survenue. Réessayez.";
+        errorMessage.textContent = error.message;
         errorMessage.classList.remove("hidden");
+        reessayer.classList.remove("hidden");
 
     } finally {
         chargement.classList.add("hidden");
     }
+});
+
+reessayer.addEventListener("click", function() {
+    form.requestSubmit();
 });
