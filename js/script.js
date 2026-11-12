@@ -74,7 +74,7 @@ form.addEventListener("submit", async function(event) {
         const nomVilleAPI = data.results[0].name;
 
 
-        const urlMeteo = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code`;
+        const urlMeteo = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=5`;
 
         const resultatMeteo = await fetch(urlMeteo);
 
@@ -83,6 +83,8 @@ form.addEventListener("submit", async function(event) {
         }
 
         const dataMeteo = await resultatMeteo.json();
+        console.log(dataMeteo.daily);
+           
 
         const temperature = dataMeteo.current.temperature_2m;
         const humidite = dataMeteo.current.relative_humidity_2m;
@@ -174,6 +176,73 @@ form.addEventListener("submit", async function(event) {
         );
 
         resultatMeteoContainer.replaceChildren(carte);
+
+        const sectionPrevisions = document.createElement("section");
+        sectionPrevisions.className = "mt-6";
+
+        const titrePrevisions = document.createElement("h2");
+        titrePrevisions.textContent = "Prévisions sur 5 jours";
+        titrePrevisions.className = "mb-4 text-xl font-bold text-white";
+
+        const listePrevisions = document.createElement("div");
+        listePrevisions.className = "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5";
+
+        sectionPrevisions.append(titrePrevisions, listePrevisions);
+        resultatMeteoContainer.append(sectionPrevisions);
+
+        dataMeteo.daily.time.forEach(function(date, index) {
+        const dateFormatee = new Date(date + "T12:00:00").toLocaleDateString("fr-FR", {
+            weekday: "long",
+            day: "numeric",
+            month: "long"
+            });
+            const carteJour =  document.createElement("div")
+            carteJour.className = "rounded-2xl border border-slate-700 bg-[#172338] p-6 shadow-xl"
+            const dateElement = document.createElement("div")
+            dateElement.textContent = dateFormatee
+
+            const max = dataMeteo.daily.temperature_2m_max[index]
+            const min = dataMeteo.daily.temperature_2m_min[index]
+
+            const maxElement = document.createElement("p")
+            const minElement = document.createElement("p")
+
+            if (max === null || max === undefined) {
+            maxElement.textContent = "Max : Données indisponibles";
+            } else {
+            maxElement.textContent = `Max : ${max} °C`;
+            }
+
+            if (min === null || min === undefined) {
+            minElement.textContent = "Min : Données indisponibles";
+            } else {
+                minElement.textContent = `Min : ${min} °C`;
+            }
+            
+
+
+
+            const codeJour = dataMeteo.daily.weather_code[index]
+            const conditionJour = WEATHER_CODES[codeJour] || {
+            label: "Données indisponibles",
+            icon: "🌍"
+            };
+
+
+            const icon = document.createElement("span")
+            const descriptionJour = document.createElement("p")
+
+            icon.textContent = conditionJour.icon 
+            descriptionJour.textContent = conditionJour.label
+
+            icon.className = "text-4xl";
+            descriptionJour.className = "text-sm text-slate-300";
+
+            carteJour.append(icon, descriptionJour);
+            carteJour.append(dateElement, maxElement, minElement, icon, descriptionJour);
+            listePrevisions.append(carteJour);
+            
+        });
 
     } catch (error) {
         console.error(error);
